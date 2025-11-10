@@ -81,6 +81,7 @@ let recallModal, recallChoicesEl, recallSkipBtn, recallSubmitBtn;
 let dailyModal, dailyBtn, dailyCloseBtn, dailyStartBtn, dailyInfoEl;
 let loseModal, failRetryBtn, failCloseBtn;
 let statsModal, statsBtn, statsClose, statsListEl, resetDataBtn;
+let guideBtn, guideModal, guideCloseBtn, guideNoShow, guideBasicsList, guideAdvancedList, guideShortcutsList, guideNoShowLabel, guideOpenHintEl;
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
@@ -93,6 +94,7 @@ let timerId = null;
 let started = false;
 let currentDifficulty = "easy";
 const HINT_LIMITS = { easy: 3, medium: 2, hard: 1 };
+const GUIDE_KEY = 'memory_match_onboarding_v1';
 let paused = false;
 let hintsLeft = 0;
 let isPreviewing = false;
@@ -780,7 +782,44 @@ function closeModal() {
   winModal.classList.remove("flex");
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function shouldAutoShowGuide() {
+  try {
+    const val = localStorage.getItem(GUIDE_KEY);
+    return !val;
+  } catch {
+    return true;
+  }
+}
+
+function markGuideSeen() {
+  try { localStorage.setItem(GUIDE_KEY, 'seen'); } catch {}
+}
+
+function openGuideModal(isAuto) {
+  if (!guideModal) return;
+  if (guideNoShow) guideNoShow.checked = false;
+  guideModal.classList.remove('hidden');
+  guideModal.classList.add('flex');
+  if (isAuto) {
+    markGuideSeen();
+  }
+}
+
+function closeGuideModal() {
+  if (!guideModal) return;
+  if (guideNoShow && guideNoShow.checked) {
+    try { localStorage.setItem(GUIDE_KEY, 'hidden'); } catch {}
+  }
+  guideModal.classList.add('hidden');
+  guideModal.classList.remove('flex');
+}
+
+function maybeShowGuideOnFirstVisit() {
+  if (shouldAutoShowGuide()) openGuideModal(true);
+}
+
+if (typeof document !== 'undefined') {
+  document.addEventListener("DOMContentLoaded", () => {
   gridEl = document.getElementById("grid");
   movesEl = document.getElementById("moves");
   timeEl = document.getElementById("time");
@@ -859,6 +898,15 @@ document.addEventListener("DOMContentLoaded", () => {
   nbackLenSelect = document.getElementById('nbackLenSelect');
   nbackStartBtn = document.getElementById('nbackStart');
   nbackCloseBtn = document.getElementById('nbackClose');
+  guideBtn = document.getElementById('guideBtn');
+  guideModal = document.getElementById('guideModal');
+  guideCloseBtn = document.getElementById('guideClose');
+  guideNoShow = document.getElementById('guideNoShow');
+  guideBasicsList = document.getElementById('guideBasicsList');
+  guideAdvancedList = document.getElementById('guideAdvancedList');
+  guideShortcutsList = document.getElementById('guideShortcutsList');
+  guideNoShowLabel = document.getElementById('guideNoShowLabel');
+  guideOpenHintEl = document.getElementById('guideOpenHint');
 
   difficultyEl.addEventListener("change", () => initGame(difficultyEl.value));
   newGameBtn.addEventListener("click", () => initGame(difficultyEl.value));
@@ -870,6 +918,9 @@ document.addEventListener("DOMContentLoaded", () => {
   if (failCloseBtn) failCloseBtn.addEventListener('click', () => { if (loseModal) { loseModal.classList.add('hidden'); loseModal.classList.remove('flex'); } });
   hintBtn.addEventListener("click", useHint);
   settingsBtn.addEventListener("click", () => { applySettingsToUI(); settingsModal.classList.remove("hidden"); settingsModal.classList.add("flex"); });
+  if (guideBtn) guideBtn.addEventListener('click', () => openGuideModal(false));
+  if (guideCloseBtn) guideCloseBtn.addEventListener('click', () => closeGuideModal());
+  if (guideModal) guideModal.addEventListener('click', (e) => { if (e.target === guideModal) closeGuideModal(); });
   settingsCancel.addEventListener("click", () => { settingsModal.classList.add("hidden"); settingsModal.classList.remove("flex"); });
   settingsSave.addEventListener("click", () => {
     const prevCardFace = settings.cardFace;
@@ -978,6 +1029,7 @@ document.addEventListener("DOMContentLoaded", () => {
   updateProgressUI();
   updateStatsUI();
   applyLanguage();
+  maybeShowGuideOnFirstVisit();
   window.addEventListener('resize', resizeConfettiCanvas);
   const mqlDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
   if (mqlDark && mqlDark.addEventListener) mqlDark.addEventListener('change', () => { if ((settings.theme || 'auto') === 'auto') applyTheme(); });
@@ -988,7 +1040,29 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   initGame(currentDifficulty);
-});
+  });
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    loadAdaptive,
+    getAdaptiveAssist,
+    saveAdaptive,
+    updateAdaptiveOnEnd,
+    decideDifficulty,
+    shouldAutoShowGuide,
+    markGuideSeen,
+    adaptiveKey,
+    DEFAULT_SETTINGS,
+    __setSettings(partial) {
+      if (!partial || typeof partial !== 'object') return;
+      Object.assign(settings, partial);
+    },
+    __getSettings() {
+      return { ...settings };
+    },
+  };
+}
 
 function startNBack() {
   if (!nbackModal || !nbackStimEl) return;
@@ -1122,6 +1196,25 @@ function i18n() {
       statsTitle: '统计', achievementsTitle: '成就', dailyTitle: '每日挑战', close: '关闭', dailyStart: '开始挑战', today: '今日', difficulty: '难度', status: '状态', completed: '已完成', notCompleted: '未完成',
       recallTitle: '回忆测验', recallDesc: '请从下列选项中勾选本局中出现过的卡面。', recallSkip: '跳过', recallSubmit: '提交',
       nback: 'N-back', nbackTitle: 'N-back 训练', nbackNLabel: 'N 值', nbackSpeedLabel: '节奏(ms)', nbackLenLabel: '长度', nbackHint: '按 J 判定“与 N 步前相同”', nbackStart: '开始', nbackClose: '关闭', nbackStop: '停止',
+      guide: '指南', guideTitle: '快速上手指南', guideIntro: '第一次游玩？按照下面的步骤开始训练。',
+      guideBasicsTitle: '基础操作', guideBasics: [
+        '选择上方的难度后，点击“开始/重开”或按 N 开局。',
+        '翻开两张相同的卡片即可配对成功，配对后会自动锁定。',
+        '提示按钮（或按 H）可暂时展示一对卡片，每局数量有限。'
+      ],
+      guideAdvancedTitle: '进阶技巧', guideAdvanced: [
+        '在设置中启用“限时模式”，感受倒计时压力训练反应。',
+        '每日挑战为所有玩家提供相同牌组，比较谁更快完成。',
+        '通关后可查看星级表现、回忆测验与统计面板，帮助复盘。'
+      ],
+      guideShortcutsTitle: '常用快捷键', guideShortcuts: [
+        { key: 'N', desc: '新开一局（保持当前难度）' },
+        { key: 'P', desc: '暂停 / 继续当前局' },
+        { key: 'H', desc: '使用提示（若仍有次数）' },
+        { key: '方向键 + 回车/空格', desc: '使用键盘导航并翻牌' },
+        { key: 'J', desc: '在 N-back 模式中判定匹配' }
+      ],
+      guideNoShow: '下次不再显示', guideOpenHint: '随时可点击上方“指南”查看', guideClose: '开始训练',
     },
     en: {
       timeLabel: 'Time', movesLabel: 'Moves', bestLabel: 'Best',
@@ -1131,6 +1224,25 @@ function i18n() {
       statsTitle: 'Statistics', achievementsTitle: 'Achievements', dailyTitle: 'Daily Challenge', close: 'Close', dailyStart: 'Start', today: 'Today', difficulty: 'Difficulty', status: 'Status', completed: 'Completed', notCompleted: 'Not Completed',
       recallTitle: 'Recall Test', recallDesc: 'Please select all items that appeared this round.', recallSkip: 'Skip', recallSubmit: 'Submit',
       nback: 'N-back', nbackTitle: 'N-back Training', nbackNLabel: 'N', nbackSpeedLabel: 'Pace(ms)', nbackLenLabel: 'Length', nbackHint: 'Press J when it matches N-back', nbackStart: 'Start', nbackClose: 'Close', nbackStop: 'Stop',
+      guide: 'Guide', guideTitle: 'Quick Start Guide', guideIntro: 'New here? Follow these steps to begin your training.',
+      guideBasicsTitle: 'Basics', guideBasics: [
+        'Pick a difficulty on the toolbar, then click “New/Restart” or press N.',
+        'Flip two matching cards to lock them in. Clear all pairs to win.',
+        'Use the hint button (or press H) to briefly reveal a pair. Hints are limited each round.'
+      ],
+      guideAdvancedTitle: 'Pro Tips', guideAdvanced: [
+        'Enable Countdown mode in Settings to practice under time pressure.',
+        'Daily Challenge shares the same deck for everyone—compare progress with friends.',
+        'After finishing a round, review your stars, recall test, and stats to reflect on performance.'
+      ],
+      guideShortcutsTitle: 'Shortcuts', guideShortcuts: [
+        { key: 'N', desc: 'Start a new round (keep current difficulty)' },
+        { key: 'P', desc: 'Pause / resume the round' },
+        { key: 'H', desc: 'Use a hint (when available)' },
+        { key: 'Arrows + Enter/Space', desc: 'Navigate cards with keyboard and flip' },
+        { key: 'J', desc: 'Mark a match during N-back mode' }
+      ],
+      guideNoShow: 'Don’t show again', guideOpenHint: 'You can reopen the guide anytime from the toolbar', guideClose: 'Start training',
     }
   };
   return dict[lang];
@@ -1174,6 +1286,18 @@ function applyLanguage() {
   if (statsClose) statsClose.textContent = t.close;
   if (dailyCloseBtn) dailyCloseBtn.textContent = t.close;
   if (dailyStartBtn) dailyStartBtn.textContent = t.dailyStart;
+  const guideBtnEl = document.getElementById('guideBtn'); if (guideBtnEl) guideBtnEl.textContent = t.guide;
+  const guideTitleEl = document.getElementById('guideTitle'); if (guideTitleEl) guideTitleEl.textContent = t.guideTitle;
+  const guideIntroEl = document.getElementById('guideIntro'); if (guideIntroEl) guideIntroEl.textContent = t.guideIntro;
+  const guideBasicsTitleEl = document.getElementById('guideBasicsTitle'); if (guideBasicsTitleEl) guideBasicsTitleEl.textContent = t.guideBasicsTitle;
+  if (guideBasicsList) guideBasicsList.innerHTML = (t.guideBasics || []).map(item => `<li>${item}</li>`).join('');
+  const guideAdvancedTitleEl = document.getElementById('guideAdvancedTitle'); if (guideAdvancedTitleEl) guideAdvancedTitleEl.textContent = t.guideAdvancedTitle;
+  if (guideAdvancedList) guideAdvancedList.innerHTML = (t.guideAdvanced || []).map(item => `<li>${item}</li>`).join('');
+  const guideShortcutsTitleEl = document.getElementById('guideShortcutsTitle'); if (guideShortcutsTitleEl) guideShortcutsTitleEl.textContent = t.guideShortcutsTitle;
+  if (guideShortcutsList) guideShortcutsList.innerHTML = (t.guideShortcuts || []).map(sc => `<li class="flex items-center gap-2"><span class="inline-flex items-center rounded bg-slate-100 px-2 py-0.5 font-mono text-xs text-slate-700 dark:bg-slate-700 dark:text-slate-200">${sc.key}</span><span>${sc.desc}</span></li>`).join('');
+  if (guideNoShowLabel) guideNoShowLabel.textContent = t.guideNoShow;
+  if (guideOpenHintEl) guideOpenHintEl.textContent = t.guideOpenHint;
+  if (guideCloseBtn) guideCloseBtn.textContent = t.guideClose;
   // hint button with remaining span
   if (hintBtn) {
     hintBtn.innerHTML = `${t.hint} <span id="hintLeft" class="ml-1">${hintsLeft}</span>`;
@@ -1216,6 +1340,10 @@ function useHint() {
 
 function handleKeyDown(e) {
   const key = e.key;
+  if (guideModal && guideModal.classList.contains('flex')) {
+    if (key === 'Escape') { e.preventDefault(); closeGuideModal(); }
+    return;
+  }
   if (nbackRunning && (key === 'j' || key === 'J')) { e.preventDefault(); onNBackKey(); return; }
   if (key === 'p' || key === 'P') { e.preventDefault(); togglePause(); return; }
   if (key === 'h' || key === 'H') { e.preventDefault(); useHint(); return; }
