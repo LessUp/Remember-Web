@@ -81,6 +81,7 @@
         <button id="pauseBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">暂停</button>
         <button id="hintBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">提示 <span id="hintLeft" class="ml-1">0</span></button>
         <button id="settingsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">设置</button>
+        <button id="guideBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">指南</button>
         <button id="achievementsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">成就</button>
         <button id="statsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">统计</button>
         <button id="dailyBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">每日</button>
@@ -267,6 +268,43 @@
         <button id="settingsCancel" class="px-4 py-2 rounded-md border border-slate-300 text-slate-700 text-sm bg-white hover:bg-slate-50">取消</button>
         <button id="settingsSave" class="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">保存</button>
         <button id="resetData" class="px-4 py-2 rounded-md border border-rose-300 text-rose-700 text-sm bg-white hover:bg-rose-50">重置数据</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="guideModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-xl rounded-2xl bg-white dark:bg-slate-800 shadow-lg p-6">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <h2 id="guideTitle" class="text-lg font-semibold">快速上手指南</h2>
+          <p id="guideIntro" class="text-sm text-slate-600 dark:text-slate-300 mt-1">第一次游玩？按照下面的步骤开始训练。</p>
+        </div>
+        <span class="text-2xl" aria-hidden="true">🧭</span>
+      </div>
+      <div class="space-y-4 text-sm text-slate-600 dark:text-slate-300">
+        <span class="hidden dark:bg-slate-700"></span>
+        <section>
+          <h3 id="guideBasicsTitle" class="text-sm font-semibold text-slate-700 dark:text-slate-200">基础操作</h3>
+          <ul id="guideBasicsList" class="mt-2 list-disc pl-5 space-y-1"></ul>
+        </section>
+        <section>
+          <h3 id="guideAdvancedTitle" class="text-sm font-semibold text-slate-700 dark:text-slate-200">进阶技巧</h3>
+          <ul id="guideAdvancedList" class="mt-2 list-disc pl-5 space-y-1"></ul>
+        </section>
+        <section>
+          <h3 id="guideShortcutsTitle" class="text-sm font-semibold text-slate-700 dark:text-slate-200">常用快捷键</h3>
+          <ul id="guideShortcutsList" class="mt-2 space-y-1"></ul>
+        </section>
+      </div>
+      <div class="mt-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <label class="inline-flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
+          <input id="guideNoShow" type="checkbox" class="h-4 w-4">
+          <span id="guideNoShowLabel">下次不再显示</span>
+        </label>
+        <div class="flex items-center gap-3">
+          <span id="guideOpenHint" class="text-xs text-slate-400">随时可点击上方“指南”查看</span>
+          <button id="guideClose" class="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">开始训练</button>
+        </div>
       </div>
     </div>
   </div>
