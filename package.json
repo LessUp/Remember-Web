@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "jest"
+    "test": "jest",
+    "prepare:deploy": "bash scripts/prepare-deploy.sh"
   },
   "devDependencies": {
     "jest": "^29.7.0",

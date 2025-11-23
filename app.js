@@ -178,6 +178,22 @@ const lettersPool = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 
 const shapesPool = ['▲','■','●','◆','★','⬤','⬟','⬢','⬣','⬥','◼','◻','◾','◽','▣','▧','▨','✦','✧','✪','✸','✹','✤','✥','⬠','⬡'];
 const colorsPool = ['#EF4444','#F97316','#F59E0B','#84CC16','#22C55E','#10B981','#06B6D4','#3B82F6','#6366F1','#8B5CF6','#A855F7','#EC4899','#F43F5E','#14B8A6','#EAB308','#0EA5E9','#4ADE80','#FB7185','#34D399','#60A5FA','#D946EF','#F59E0B','#22C55E'];
 
+function logLifecycle(event, detail = {}) {
+  try {
+    console.info(`[Remember] ${event}`, detail);
+  } catch (_) {
+    // eslint-disable-line no-empty
+  }
+}
+
+function logError(event, detail = {}) {
+  try {
+    console.error(`[Remember] ${event}`, detail);
+  } catch (_) {
+    // eslint-disable-line no-empty
+  }
+}
+
 function getAccent() {
   const a = settings.accent || 'indigo';
   return ACCENTS[a] || ACCENTS.indigo;
@@ -699,6 +715,12 @@ function initGame(diffKey) {
   movesEl.textContent = "0";
   updateBestUI();
   const assist = getAdaptiveAssist(currentDifficulty);
+  logLifecycle('init_game', {
+    difficulty: currentDifficulty,
+    adaptive: !!settings.adaptive,
+    previewSeconds: assist.previewSec,
+    hintLimit: assist.hintLimit,
+  });
   hintsLeft = assist.hintLimit || 0;
   hintsUsed = 0;
   paused = false;
@@ -739,6 +761,14 @@ function onWin() {
   updateBestUI();
   winStatsEl.textContent = `用时 ${formatTime(elapsed)} · ${moves} 步`;
   const stars = getRating(elapsed, moves, currentDifficulty, hintsUsed, maxComboThisGame);
+  logLifecycle('game_win', {
+    difficulty: currentDifficulty,
+    elapsed,
+    moves,
+    stars,
+    hintsUsed,
+    maxCombo: maxComboThisGame,
+  });
   renderRating(stars);
   winModal.classList.remove("hidden");
   winModal.classList.add("flex");
@@ -771,6 +801,7 @@ function onTimeUp() {
   timeUp = true;
   lockBoard = true;
   paused = true;
+  logLifecycle('time_up', { difficulty: currentDifficulty, elapsed, moves });
   if (loseModal) { loseModal.classList.remove('hidden'); loseModal.classList.add('flex'); }
   sfx('mismatch');
   vibrateMs(100);
@@ -1036,7 +1067,9 @@ if (typeof document !== 'undefined') {
   const mqlReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   if (mqlReduce && mqlReduce.addEventListener) mqlReduce.addEventListener('change', () => { if ((settings.motion || 'auto') === 'auto') applyMotionPreference(); });
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => logLifecycle('service_worker_registered', { scope: reg.scope }))
+      .catch((err) => logError('service_worker_registration_failed', { message: err?.message }));
   }
 
   initGame(currentDifficulty);
