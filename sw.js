@@ -11,12 +11,14 @@ self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS)).then(() => self.skipWaiting())
   );
+  console.info('[Remember][SW] installed - cached core assets', { count: ASSETS.length });
 });
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => Promise.all(keys.map((k) => (k === CACHE_NAME ? null : caches.delete(k))))).then(() => self.clients.claim())
   );
+  console.info('[Remember][SW] activated - cleaned up old caches');
 });
 
 self.addEventListener('fetch', (event) => {
@@ -51,7 +53,10 @@ self.addEventListener('fetch', (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(req, copy));
           return res;
         })
-        .catch(() => caches.match(req).then((res) => res || caches.match('./index.html')))
+        .catch((err) => {
+          console.warn('[Remember][SW] navigation fallback triggered', err);
+          return caches.match(req).then((res) => res || caches.match('./index.html'));
+        })
     );
     return;
   }

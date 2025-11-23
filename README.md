@@ -13,6 +13,7 @@
 - **间隔复现（Spaced Reinforcement）**：对易错卡面施加权重，在后续局中优先出现，支持导出/导入持久保存。
 - **回忆测验（Delayed Recall）**：通关后立即进行 6 真 + 3 伪的再认测验，统计精确率与召回率。
 - **Emoji N-back 模式**：单按钮（J 键）判定，与 N 步前是否相同，统计准确率与反应时，强化工作记忆。
+- **策略实验室（Strategy Lab）**：基于记忆研究的可选训练策略（间隔+回忆、组块冲刺、双编码、零预览检索），一键应用到下一局。
 - **多语言支持**：中文 / English / 自动（遵循浏览器语言）。
 - **新手引导与快捷键提示**：首次访问自动弹窗，随时可从工具栏打开，汇总玩法与操作快捷键。
 - **PWA 友好**：内置 Service Worker，缓存 Tailwind CDN，离线访问样式不丢失。
@@ -61,6 +62,7 @@ serve .
 - **回忆测验**：通关后弹窗，可跳过或提交；统计加入精确率/召回率。
 - **自适应辅助**：按照玩家表现调整预览时间与提示数量。
 - **间隔复现**：跨局记录易错卡面权重（未来计划升级 SM-2 / Leitner）。
+- **策略实验室**：提供间隔+回忆（Ebbinghaus）、组块冲刺（Miller 7±2）、双编码（Paivio）、零预览检索（Testing effect）等套路，附带练习要点提示。
 - **Emoji N-back**：可配置 N 值、节奏、长度，支持键盘 `J` 响应。
 
 ## 📦 数据导出/导入
@@ -105,7 +107,13 @@ serve .
   npm install
   npm test
   ```
-- 提交到仓库后，GitHub Actions 会自动执行 `npm test`，确保自适应机制与新手引导等关键逻辑保持稳定。
+- GitHub Actions 会在 Node.js 18 与 20 上并行运行测试，并验证部署包可被正确产出（`npm run prepare:deploy`）。
+- 推送到 `main` 将自动触发 Pages 部署流程，生成的静态资源位于 `dist/` 目录。
+
+### 部署与打包
+
+- 运行 `npm run prepare:deploy` 将核心静态资源复制到 `dist/`，供静态托管或 CDN 发布。
+- GitHub Pages 工作流会复用该目录进行自动发布，默认包含 `index.html`、`app.js`、`sw.js` 与 `manifest.webmanifest`。
 
 ## 📄 许可证
 

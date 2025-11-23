@@ -81,6 +81,7 @@
         <button id="pauseBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">暂停</button>
         <button id="hintBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">提示 <span id="hintLeft" class="ml-1">0</span></button>
         <button id="settingsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">设置</button>
+        <button id="strategyBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">策略</button>
         <button id="guideBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">指南</button>
         <button id="achievementsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">成就</button>
         <button id="statsBtn" class="px-3 py-2 rounded-md border border-slate-300 bg-white text-slate-700 text-sm hover:bg-slate-50">统计</button>
@@ -94,6 +95,7 @@
         <div class="text-slate-500 dark:text-slate-400"><span id="bestLabel">最佳</span> <span id="best" class="font-semibold text-slate-700 dark:text-slate-200">—</span></div>
       </div>
     </section>
+    <div id="strategyActive" class="hidden mb-2 text-xs text-slate-600 flex items-center gap-2">当前策略：<span id="strategyActiveLabel" class="font-semibold text-indigo-600"></span><button id="strategyClear" class="px-2 py-0.5 rounded border border-slate-300 text-slate-600 hover:bg-slate-50">清除</button></div>
     <div class="mb-3">
       <div class="flex items-center justify-between text-xs text-slate-500">
         <span>进度</span><span><span id="pairsLeft">0</span> 对剩余</span>
@@ -118,7 +120,8 @@
         <div class="mx-auto mb-3 h-12 w-12 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-2xl">🎉</div>
         <h2 id="winTitle" class="text-xl font-semibold mb-2">太棒了！全部配对完成</h2>
         <div id="ratingStars" class="mb-1 text-lg"></div>
-        <p id="winStats" class="text-slate-600 dark:text-slate-300 mb-4 text-sm"></p>
+        <p id="winStats" class="text-slate-600 dark:text-slate-300 mb-2 text-sm"></p>
+        <p id="winStrategyNote" class="text-xs text-indigo-600 mb-2 hidden"></p>
         <div class="flex items-center justify-center gap-3">
           <button id="playAgain" class="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">再来一局</button>
           <button id="shareBtn" class="px-4 py-2 rounded-md bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700">分享战绩</button>
@@ -306,6 +309,20 @@
           <button id="guideClose" class="px-4 py-2 rounded-md bg-indigo-600 text-white text-sm font-medium hover:bg-indigo-700">开始训练</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <div id="strategyModal" class="fixed inset-0 hidden items-center justify-center bg-black/50 p-4">
+    <div class="w-full max-w-2xl rounded-2xl bg-white dark:bg-slate-800 shadow-lg p-6">
+      <div class="flex items-start justify-between mb-3">
+        <div>
+          <h2 id="strategyTitle" class="text-lg font-semibold">策略实验室</h2>
+          <p id="strategySubtitle" class="text-sm text-slate-600 dark:text-slate-300">来自记忆研究的可玩化训练方案</p>
+        </div>
+        <button id="strategyClose" class="px-3 py-1 rounded-md border border-slate-300 text-slate-700 text-sm bg-white hover:bg-slate-50">关闭</button>
+      </div>
+      <div id="strategyList" class="space-y-3"></div>
+      <p id="strategyFootnote" class="text-xs text-slate-500 mt-4">提示：选择一项策略后，将在下一局自动套用相应卡组或辅助设置，可随时清除。</p>
     </div>
   </div>
   <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none hidden"></canvas>

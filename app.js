@@ -61,10 +61,40 @@ function pickWithSpaced(theme, pool, pairs) {
   const picks = [...picksTop, ...rest.slice(0, pairs - picksTop.length)];
   return picks;
 }
+
+function loadStrategyPlan() {
+  try { const v = localStorage.getItem(STRATEGY_KEY); return v || null; } catch { return null; }
+}
+function saveStrategyPlan(id) {
+  try {
+    if (id) localStorage.setItem(STRATEGY_KEY, id); else localStorage.removeItem(STRATEGY_KEY);
+  } catch {}
+}
+function strategyLabel(plan) {
+  const lang = currentLang();
+  return plan?.label ? (plan.label[lang] || plan.label.zh || plan.label.en || '') : '';
+}
+function strategyDesc(plan) {
+  const lang = currentLang();
+  return plan?.desc ? (plan.desc[lang] || plan.desc.zh || plan.desc.en || '') : '';
+}
+function strategyNote(plan) {
+  const lang = currentLang();
+  if (!plan || !plan.effect) return '';
+  const eff = plan.effect();
+  if (!eff.note) return '';
+  return eff.note[lang] || eff.note.zh || eff.note.en || '';
+}
+function getActiveStrategy() { return strategyPresets.find(p => p.id === activeStrategyId) || null; }
+function getStrategyEffect() {
+  const plan = getActiveStrategy();
+  if (!plan || !plan.effect) return {};
+  try { return plan.effect() || {}; } catch { return {}; }
+}
 const difficulties = { easy: { rows: 4, cols: 4, pairs: 8 }, medium: { rows: 4, cols: 5, pairs: 10 }, hard: { rows: 6, cols: 6, pairs: 18 } };
 const emojiPool = ["🍎","🍌","🍇","🍓","🍒","🍉","🍑","🍍","🥝","🍋","🍊","🍐","🍈","🥥","🥕","🍅","🌽","🥦","⭐","🌙","🔥","❄️","⚡","🌈","💧","🍄","🌻","🌵","🐶","🐱","🐭","🐹","🐰","🦊","🐻","🐼","🦁","🐯","🐷","🐸","🐵","🐔","🐧","🐦","🐤","🐙","🐠","🐳","🐬","🐝","🦋","🚗","✈️","🚀","🚲","🏀","⚽","🎲","🎯","🎵","🎧","🎁","🔑","🔔","💡","❤️","💎"];
 
-let gridEl, movesEl, timeEl, bestEl, difficultyEl, newGameBtn, winModal, winStatsEl, playAgainBtn, closeModalBtn;
+let gridEl, movesEl, timeEl, bestEl, difficultyEl, newGameBtn, winModal, winStatsEl, winStrategyNote, playAgainBtn, closeModalBtn;
 let ratingStarsEl;
 let comboToastEl;
 let pauseBtn, hintBtn, hintLeftEl, settingsBtn, pauseOverlay, resumeBtn;
@@ -82,6 +112,7 @@ let dailyModal, dailyBtn, dailyCloseBtn, dailyStartBtn, dailyInfoEl;
 let loseModal, failRetryBtn, failCloseBtn;
 let statsModal, statsBtn, statsClose, statsListEl, resetDataBtn;
 let guideBtn, guideModal, guideCloseBtn, guideNoShow, guideBasicsList, guideAdvancedList, guideShortcutsList, guideNoShowLabel, guideOpenHintEl;
+let strategyBtn, strategyModal, strategyListEl, strategyCloseBtn, strategyActiveEl, strategyActiveLabel, strategyClearBtn;
 let firstCard = null;
 let secondCard = null;
 let lockBoard = false;
@@ -110,6 +141,9 @@ let lastMatchAt = 0;
 let seenCountMap = new Map();
 let lastGameValues = [];
 let recallCorrectSet = new Set();
+let activeStrategyId = null;
+let currentStrategyEffect = {};
+let roundStrategyNote = '';
 // N-back state
 let nbackRunning = false;
 let nbackTimer = null;
@@ -177,6 +211,90 @@ const numbersPool = Array.from({ length: 40 }, (_, i) => String(i + 1));
 const lettersPool = Array.from({ length: 26 }, (_, i) => String.fromCharCode(65 + i));
 const shapesPool = ['▲','■','●','◆','★','⬤','⬟','⬢','⬣','⬥','◼','◻','◾','◽','▣','▧','▨','✦','✧','✪','✸','✹','✤','✥','⬠','⬡'];
 const colorsPool = ['#EF4444','#F97316','#F59E0B','#84CC16','#22C55E','#10B981','#06B6D4','#3B82F6','#6366F1','#8B5CF6','#A855F7','#EC4899','#F43F5E','#14B8A6','#EAB308','#0EA5E9','#4ADE80','#FB7185','#34D399','#60A5FA','#D946EF','#F59E0B','#22C55E'];
+const STRATEGY_KEY = 'memory_match_strategy_plan_v1';
+const strategyPresets = [
+  {
+    id: 'spacing',
+    label: { zh: '间隔 + 回忆', en: 'Spacing + Recall' },
+    source: 'Ebbinghaus curve · retrieval practice',
+    desc: {
+      zh: '基于间隔效应：优先使用“间隔复现”权重，并保持回忆测验，适合每日挑战的巩固复习。',
+      en: 'Uses spacing effect: prioritizes spaced reinforcement and keeps recall tests—great for daily consolidation.'
+    },
+    effect() {
+      return { previewSec: Math.max(settings.previewSeconds || 0, 1), hintLimit: HINT_LIMITS[currentDifficulty] || 0, note: {
+        zh: '记得第二天重练同一牌组以检验保留率。',
+        en: 'Replay the same deck tomorrow to probe retention.'
+      } };
+    },
+    applySettings(s) { s.spaced = true; s.previewSeconds = Math.max(s.previewSeconds || 0, 1); }
+  },
+  {
+    id: 'chunking',
+    label: { zh: '组块冲刺', en: 'Chunk Sprint' },
+    source: 'Miller’s 7±2 · chunk-based encoding',
+    desc: {
+      zh: '切换到数字卡组，开局预览 2 秒，鼓励按 2-2-2 或 3-3-2 方式组块，以减少工作记忆占用。',
+      en: 'Switch to numbers, give a 2s study window, and group items (e.g., 2-2-2 or 3-3-2) to ease working-memory load.'
+    },
+    effect() {
+      return { cardFace: 'numbers', previewSec: Math.max(2, settings.previewSeconds || 0), note: {
+        zh: '尝试将数字拆成 3~4 组的语块，并在翻牌时按组扫描。',
+        en: 'Break numbers into 3–4 chunks and scan by group while recalling.'
+      } };
+    },
+    applySettings(s) { s.cardFace = 'numbers'; s.previewSeconds = Math.max(2, s.previewSeconds || 0); }
+  },
+  {
+    id: 'dualcoding',
+    label: { zh: '双编码对照', en: 'Dual-coding Mix' },
+    source: 'Dual-coding theory · Paivio',
+    desc: {
+      zh: '使用颜色卡面并保留音效/震动，强化视觉与听觉通道的联合编码，配对时刻意 verbalize 颜色名称。',
+      en: 'Use color faces with audio/haptics to pair visual + auditory channels; intentionally verbalize the color names while matching.'
+    },
+    effect() {
+      return { cardFace: 'colors', previewSec: Math.max(settings.previewSeconds || 0, 1), note: {
+        zh: '大声或心中念出颜色名称，形成视觉+语音双痕迹。',
+        en: 'Say the color names aloud or silently to create dual traces.'
+      } };
+    },
+    applySettings(s) { s.cardFace = 'colors'; s.sound = true; s.vibrate = true; s.previewSeconds = Math.max(1, s.previewSeconds || 0); }
+  },
+  {
+    id: 'retrieval',
+    label: { zh: '零预览检索', en: 'Retrieval Pressure' },
+    source: 'Testing effect · desirable difficulties',
+    desc: {
+      zh: '取消开局预览并减少提示，计时略收紧，模拟“无准备直接回忆”的检索练习。',
+      en: 'Removes previews, trims hints, and tightens timer for retrieval-focused practice without study time.'
+    },
+    effect() {
+      const baseHint = HINT_LIMITS[currentDifficulty] || 0;
+      return { previewSec: 0, hintLimit: Math.max(0, baseHint - 1), countdownScale: 0.9, note: {
+        zh: '不预览直接开翻，答错记录下次需加强的卡面。',
+        en: 'Start cold without preview; log misses as items to reinforce next time.'
+      } };
+    },
+    applySettings(s) { s.previewSeconds = 0; s.gameMode = 'countdown'; }
+  }
+];
+
+function logLifecycle(event, detail = {}) {
+  try {
+    console.info(`[Remember] ${event}`, detail);
+  } catch (_) {
+    // eslint-disable-line no-empty
+  }
+}
+
+function logError(event, detail = {}) {
+  try {
+    console.error(`[Remember] ${event}`, detail);
+  } catch (_) {
+    // eslint-disable-line no-empty
+  }
+}
 
 function getAccent() {
   const a = settings.accent || 'indigo';
@@ -489,6 +607,63 @@ function updateControlsUI() {
   updateHintUI();
 }
 
+function updateStrategyBadge() {
+  const plan = getActiveStrategy();
+  if (!strategyActiveEl || !strategyActiveLabel) return;
+  if (!plan) { strategyActiveEl.classList.add('hidden'); return; }
+  strategyActiveEl.classList.remove('hidden');
+  strategyActiveLabel.textContent = strategyLabel(plan);
+}
+
+function renderStrategyList() {
+  if (!strategyListEl) return;
+  const t = i18n();
+  const applyLabel = t.strategyApply || '应用到下一局';
+  const appliedLabel = t.strategyApplied || '已应用';
+  const noteLabel = t.strategyNoteLabel || '练习要点';
+  strategyListEl.innerHTML = strategyPresets.map(plan => {
+    const active = plan.id === activeStrategyId;
+    const btnText = active ? appliedLabel : applyLabel;
+    const note = strategyNote(plan);
+    return `<div class="rounded-xl border border-slate-200 dark:border-slate-700 p-4 bg-white dark:bg-slate-800/70">
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <p class="text-xs text-slate-500">${plan.source}</p>
+          <h3 class="text-base font-semibold text-slate-800 dark:text-slate-100">${strategyLabel(plan)}</h3>
+          <p class="text-sm text-slate-600 dark:text-slate-300 mt-1">${strategyDesc(plan)}</p>
+          ${note ? `<p class="text-xs text-indigo-600 mt-2">${noteLabel}：${note}</p>` : ''}
+        </div>
+        <button data-apply-strategy="${plan.id}" class="px-3 py-1 rounded-md text-sm ${active ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' : 'border border-slate-300 text-slate-700 bg-white hover:bg-slate-50'}">${btnText}</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function applyStrategyPlan(id) {
+  const plan = strategyPresets.find(p => p.id === id);
+  if (!plan) return;
+  activeStrategyId = plan.id;
+  saveStrategyPlan(plan.id);
+  if (typeof plan.applySettings === 'function') {
+    plan.applySettings(settings);
+    saveSettings(settings);
+    applySettingsToUI();
+  }
+  updateStrategyBadge();
+  renderStrategyList();
+  showToast((i18n().strategyAppliedToast || '已应用策略') + ` · ${strategyLabel(plan)}`);
+}
+
+function clearStrategyPlan() {
+  activeStrategyId = null;
+  saveStrategyPlan(null);
+  currentStrategyEffect = {};
+  roundStrategyNote = '';
+  updateStrategyBadge();
+  renderStrategyList();
+  showToast(i18n().strategyCleared || '已清除策略');
+}
+
 function togglePause() {
   if (paused) resumeGame(); else pauseGame();
 }
@@ -555,7 +730,8 @@ function resetTimer() {
   stopTimer();
   elapsed = 0;
   if (isCountdownMode()) {
-    countdownLeft = getCountdownFor(currentDifficulty);
+    const scale = Math.max(0.5, currentStrategyEffect.countdownScale || 1);
+    countdownLeft = Math.max(5, Math.round(getCountdownFor(currentDifficulty) * scale));
     timeEl.textContent = formatTime(countdownLeft);
   } else {
     timeEl.textContent = formatTime(elapsed);
@@ -685,6 +861,11 @@ function initGame(diffKey) {
   } else {
     currentDifficulty = diffKey;
   }
+  currentStrategyEffect = getStrategyEffect();
+  const activePlan = getActiveStrategy();
+  if (currentStrategyEffect.cardFace) settings.cardFace = currentStrategyEffect.cardFace;
+  if (currentStrategyEffect.gameMode) settings.gameMode = currentStrategyEffect.gameMode;
+  roundStrategyNote = strategyNote(activePlan);
   const cfg = difficulties[currentDifficulty];
   clearGrid();
   setGridColumns(cfg.cols);
@@ -699,7 +880,16 @@ function initGame(diffKey) {
   movesEl.textContent = "0";
   updateBestUI();
   const assist = getAdaptiveAssist(currentDifficulty);
-  hintsLeft = assist.hintLimit || 0;
+  const previewSec = currentStrategyEffect.previewSec !== undefined ? currentStrategyEffect.previewSec : assist.previewSec;
+  const hintLimit = currentStrategyEffect.hintLimit !== undefined ? currentStrategyEffect.hintLimit : assist.hintLimit;
+  logLifecycle('init_game', {
+    difficulty: currentDifficulty,
+    adaptive: !!settings.adaptive,
+    previewSeconds: previewSec,
+    hintLimit,
+    strategy: activePlan ? activePlan.id : undefined,
+  });
+  hintsLeft = hintLimit || 0;
   hintsUsed = 0;
   paused = false;
   isPreviewing = false;
@@ -714,7 +904,7 @@ function initGame(diffKey) {
   applyAccentToDOM();
   updateStatsOnNewGame();
   if (winModal) { winModal.classList.add("hidden"); winModal.classList.remove("flex"); }
-  const prevSec = Math.max(0, Number(assist.previewSec || 0));
+  const prevSec = Math.max(0, Number(previewSec || 0));
   if (prevSec > 0) {
     isPreviewing = true;
     lockBoard = true;
@@ -738,7 +928,19 @@ function onWin() {
   if (better) saveBest(currentDifficulty, curr);
   updateBestUI();
   winStatsEl.textContent = `用时 ${formatTime(elapsed)} · ${moves} 步`;
+  if (winStrategyNote) {
+    if (roundStrategyNote) { winStrategyNote.textContent = roundStrategyNote; winStrategyNote.classList.remove('hidden'); }
+    else { winStrategyNote.textContent = ''; winStrategyNote.classList.add('hidden'); }
+  }
   const stars = getRating(elapsed, moves, currentDifficulty, hintsUsed, maxComboThisGame);
+  logLifecycle('game_win', {
+    difficulty: currentDifficulty,
+    elapsed,
+    moves,
+    stars,
+    hintsUsed,
+    maxCombo: maxComboThisGame,
+  });
   renderRating(stars);
   winModal.classList.remove("hidden");
   winModal.classList.add("flex");
@@ -771,6 +973,7 @@ function onTimeUp() {
   timeUp = true;
   lockBoard = true;
   paused = true;
+  logLifecycle('time_up', { difficulty: currentDifficulty, elapsed, moves });
   if (loseModal) { loseModal.classList.remove('hidden'); loseModal.classList.add('flex'); }
   sfx('mismatch');
   vibrateMs(100);
@@ -907,6 +1110,14 @@ if (typeof document !== 'undefined') {
   guideShortcutsList = document.getElementById('guideShortcutsList');
   guideNoShowLabel = document.getElementById('guideNoShowLabel');
   guideOpenHintEl = document.getElementById('guideOpenHint');
+  strategyBtn = document.getElementById('strategyBtn');
+  strategyModal = document.getElementById('strategyModal');
+  strategyListEl = document.getElementById('strategyList');
+  strategyCloseBtn = document.getElementById('strategyClose');
+  strategyActiveEl = document.getElementById('strategyActive');
+  strategyActiveLabel = document.getElementById('strategyActiveLabel');
+  strategyClearBtn = document.getElementById('strategyClear');
+  winStrategyNote = document.getElementById('winStrategyNote');
 
   difficultyEl.addEventListener("change", () => initGame(difficultyEl.value));
   newGameBtn.addEventListener("click", () => initGame(difficultyEl.value));
@@ -921,6 +1132,15 @@ if (typeof document !== 'undefined') {
   if (guideBtn) guideBtn.addEventListener('click', () => openGuideModal(false));
   if (guideCloseBtn) guideCloseBtn.addEventListener('click', () => closeGuideModal());
   if (guideModal) guideModal.addEventListener('click', (e) => { if (e.target === guideModal) closeGuideModal(); });
+  if (strategyBtn) strategyBtn.addEventListener('click', () => { renderStrategyList(); if (strategyModal) { strategyModal.classList.remove('hidden'); strategyModal.classList.add('flex'); } });
+  if (strategyCloseBtn) strategyCloseBtn.addEventListener('click', () => { if (strategyModal) { strategyModal.classList.add('hidden'); strategyModal.classList.remove('flex'); } });
+  if (strategyModal) strategyModal.addEventListener('click', (e) => { if (e.target === strategyModal) { strategyModal.classList.add('hidden'); strategyModal.classList.remove('flex'); } });
+  if (strategyListEl) strategyListEl.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-apply-strategy]');
+    if (!btn) return;
+    applyStrategyPlan(btn.dataset.applyStrategy);
+  });
+  if (strategyClearBtn) strategyClearBtn.addEventListener('click', clearStrategyPlan);
   settingsCancel.addEventListener("click", () => { settingsModal.classList.add("hidden"); settingsModal.classList.remove("flex"); });
   settingsSave.addEventListener("click", () => {
     const prevCardFace = settings.cardFace;
@@ -1023,9 +1243,12 @@ if (typeof document !== 'undefined') {
   if (recallSubmitBtn) recallSubmitBtn.addEventListener('click', submitRecallTest);
 
   settings = loadSettings();
+  activeStrategyId = loadStrategyPlan();
   applyAccentToDOM();
   applyTheme();
   applyMotionPreference();
+  updateStrategyBadge();
+  renderStrategyList();
   updateProgressUI();
   updateStatsUI();
   applyLanguage();
@@ -1036,7 +1259,9 @@ if (typeof document !== 'undefined') {
   const mqlReduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)');
   if (mqlReduce && mqlReduce.addEventListener) mqlReduce.addEventListener('change', () => { if ((settings.motion || 'auto') === 'auto') applyMotionPreference(); });
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js')
+      .then((reg) => logLifecycle('service_worker_registered', { scope: reg.scope }))
+      .catch((err) => logError('service_worker_registration_failed', { message: err?.message }));
   }
 
   initGame(currentDifficulty);
@@ -1205,7 +1430,8 @@ function i18n() {
       guideAdvancedTitle: '进阶技巧', guideAdvanced: [
         '在设置中启用“限时模式”，感受倒计时压力训练反应。',
         '每日挑战为所有玩家提供相同牌组，比较谁更快完成。',
-        '通关后可查看星级表现、回忆测验与统计面板，帮助复盘。'
+        '通关后可查看星级表现、回忆测验与统计面板，帮助复盘。',
+        '打开“策略”，尝试间隔、组块、双编码或检索压力等实验性训练。'
       ],
       guideShortcutsTitle: '常用快捷键', guideShortcuts: [
         { key: 'N', desc: '新开一局（保持当前难度）' },
@@ -1215,6 +1441,9 @@ function i18n() {
         { key: 'J', desc: '在 N-back 模式中判定匹配' }
       ],
       guideNoShow: '下次不再显示', guideOpenHint: '随时可点击上方“指南”查看', guideClose: '开始训练',
+      strategy: '策略', strategyLabTitle: '策略实验室', strategyLabSubtitle: '来自记忆研究的可玩化训练方案',
+      strategyFootnote: '选择一项策略后，将在下一局自动套用相应卡组或辅助设置，可随时清除。',
+      strategyApply: '应用到下一局', strategyApplied: '已应用', strategyNoteLabel: '练习要点', strategyAppliedToast: '已应用策略', strategyCleared: '已清除策略', strategyClear: '清除',
     },
     en: {
       timeLabel: 'Time', movesLabel: 'Moves', bestLabel: 'Best',
@@ -1233,7 +1462,8 @@ function i18n() {
       guideAdvancedTitle: 'Pro Tips', guideAdvanced: [
         'Enable Countdown mode in Settings to practice under time pressure.',
         'Daily Challenge shares the same deck for everyone—compare progress with friends.',
-        'After finishing a round, review your stars, recall test, and stats to reflect on performance.'
+        'After finishing a round, review your stars, recall test, and stats to reflect on performance.',
+        'Open “Strategy” to try spacing, chunking, dual-coding, or retrieval-pressure experiments.'
       ],
       guideShortcutsTitle: 'Shortcuts', guideShortcuts: [
         { key: 'N', desc: 'Start a new round (keep current difficulty)' },
@@ -1243,6 +1473,9 @@ function i18n() {
         { key: 'J', desc: 'Mark a match during N-back mode' }
       ],
       guideNoShow: 'Don’t show again', guideOpenHint: 'You can reopen the guide anytime from the toolbar', guideClose: 'Start training',
+      strategy: 'Strategy', strategyLabTitle: 'Strategy Lab', strategyLabSubtitle: 'Playable drills from memory research',
+      strategyFootnote: 'Pick a strategy to auto-apply deck or assist tweaks in your next round. Clear anytime.',
+      strategyApply: 'Apply to next round', strategyApplied: 'Applied', strategyNoteLabel: 'Focus cue', strategyAppliedToast: 'Strategy applied', strategyCleared: 'Strategy cleared', strategyClear: 'Clear',
     }
   };
   return dict[lang];
@@ -1275,6 +1508,7 @@ function applyLanguage() {
   if (achievementsBtn) achievementsBtn.textContent = t.achievements;
   if (statsBtn) statsBtn.textContent = t.stats;
   if (dailyBtn) dailyBtn.textContent = t.daily;
+  const strategyBtnEl = document.getElementById('strategyBtn'); if (strategyBtnEl) strategyBtnEl.textContent = t.strategy;
   const nbackBtnEl = document.getElementById('nbackBtn'); if (nbackBtnEl) nbackBtnEl.textContent = t.nback;
   if (playAgainBtn) playAgainBtn.textContent = t.playAgain;
   if (shareBtn) shareBtn.textContent = t.share;
@@ -1298,11 +1532,17 @@ function applyLanguage() {
   if (guideNoShowLabel) guideNoShowLabel.textContent = t.guideNoShow;
   if (guideOpenHintEl) guideOpenHintEl.textContent = t.guideOpenHint;
   if (guideCloseBtn) guideCloseBtn.textContent = t.guideClose;
+  const strategyTitleEl = document.getElementById('strategyTitle'); if (strategyTitleEl) strategyTitleEl.textContent = t.strategyLabTitle || '策略实验室';
+  const strategySubtitleEl = document.getElementById('strategySubtitle'); if (strategySubtitleEl) strategySubtitleEl.textContent = t.strategyLabSubtitle || '';
+  const strategyFootnoteEl = document.getElementById('strategyFootnote'); if (strategyFootnoteEl) strategyFootnoteEl.textContent = t.strategyFootnote || '';
+  const strategyClearBtnEl = document.getElementById('strategyClear'); if (strategyClearBtnEl) strategyClearBtnEl.textContent = t.strategyClear || t.strategyCleared || '清除策略';
   // hint button with remaining span
   if (hintBtn) {
     hintBtn.innerHTML = `${t.hint} <span id="hintLeft" class="ml-1">${hintsLeft}</span>`;
     hintLeftEl = document.getElementById('hintLeft');
   }
+  renderStrategyList();
+  updateStrategyBadge();
   updateControlsUI();
 }
 
