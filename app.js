@@ -1221,15 +1221,30 @@ function currentLang() {
 function i18n() {
   const lang = currentLang();
   const dict = {
-    zh: {
-      timeLabel: '用时', movesLabel: '步数', bestLabel: '最佳',
-      newGame: '开始/重开', pause: '暂停', resume: '继续', hint: '提示', settings: '设置', achievements: '成就', stats: '统计', daily: '每日',
-      winTitle: '太棒了！全部配对完成', share: '分享战绩', back: '返回', playAgain: '再来一局',
-      loseTitle: '时间到，挑战失败', loseDesc: '可在设置中调整“限时时长”，或重试本局。', retry: '重试',
-      statsTitle: '统计', achievementsTitle: '成就', dailyTitle: '每日挑战', close: '关闭', dailyStart: '开始挑战', today: '今日', difficulty: '难度', status: '状态', completed: '已完成', notCompleted: '未完成',
-      recallTitle: '回忆测验', recallDesc: '请从下列选项中勾选本局中出现过的卡面。', recallSkip: '跳过', recallSubmit: '提交',
-      nback: 'N-back', nbackTitle: 'N-back 训练', nbackNLabel: 'N 值', nbackSpeedLabel: '节奏(ms)', nbackLenLabel: '长度', nbackHint: '按 J 判定“与 N 步前相同”', nbackStart: '开始', nbackClose: '关闭', nbackStop: '停止',
-      guide: '指南', guideTitle: '快速上手指南', guideIntro: '第一次游玩？按照下面的步骤开始训练。',
+      zh: {
+        pageTitle: '记忆力训练 · 翻牌配对', pageSubtitle: '选择难度，开始翻牌配对训练记忆。完成后将记录你的最佳成绩。',
+        difficultyLabel: '难度', difficultyEasy: '简单 4×4', difficultyMedium: '中等 4×5', difficultyHard: '困难 6×6',
+        leaderboardTitle: '排行榜（当前难度）',
+        timeLabel: '用时', movesLabel: '步数', bestLabel: '最佳',
+        newGame: '开始/重开', pause: '暂停', resume: '继续', hint: '提示', settings: '设置', achievements: '成就', stats: '统计', daily: '每日',
+        winTitle: '太棒了！全部配对完成', share: '分享战绩', back: '返回', playAgain: '再来一局',
+        loseTitle: '时间到，挑战失败', loseDesc: '可在设置中调整“限时时长”，或重试本局。', retry: '重试',
+        statsTitle: '统计', achievementsTitle: '成就', dailyTitle: '每日挑战', close: '关闭', dailyStart: '开始挑战', today: '今日', difficulty: '难度', status: '状态', completed: '已完成', notCompleted: '未完成',
+        settingsTitle: '设置',
+        settingSound: '声音', settingVibrate: '震动', settingPreview: '开局预览秒数',
+        settingAccent: '主题色', accentIndigo: '靛蓝', accentEmerald: '翡翠绿', accentRose: '玫瑰红',
+        settingTheme: '暗色模式', themeAuto: '自动', themeLight: '浅色', themeDark: '深色',
+        settingMotion: '减少动画', motionAuto: '自动', motionOn: '开启', motionOff: '关闭',
+        settingVolume: '音量', settingSoundPack: '音效风格', soundPackClear: '清亮', soundPackElectro: '电子', soundPackSoft: '柔和',
+        settingAdaptive: '自适应训练', settingSpaced: '间隔复现（易错卡）',
+        settingLanguage: '语言', languageAuto: '自动', languageZh: '中文', languageEn: 'English',
+        settingGameMode: '玩法', gameModeClassic: '经典', gameModeCountdown: '限时',
+        countdownEasy: '简单(s)', countdownMedium: '中等(s)', countdownHard: '困难(s)',
+        settingCardFace: '卡面主题', cardFaceEmoji: 'Emoji', cardFaceNumbers: '数字', cardFaceLetters: '字母', cardFaceShapes: '形状', cardFaceColors: '颜色',
+        backupLabel: '数据备份', export: '导出', import: '导入', resetData: '重置数据', settingsCancel: '取消', settingsSave: '保存',
+        recallTitle: '回忆测验', recallDesc: '请从下列选项中勾选本局中出现过的卡面。', recallSkip: '跳过', recallSubmit: '提交',
+        nback: 'N-back', nbackTitle: 'N-back 训练', nbackNLabel: 'N 值', nbackSpeedLabel: '节奏(ms)', nbackLenLabel: '长度', nbackHint: '按 J 判定“与 N 步前相同”', nbackStart: '开始', nbackClose: '关闭', nbackStop: '停止',
+        guide: '指南', guideTitle: '快速上手指南', guideIntro: '第一次游玩？按照下面的步骤开始训练。',
       guideBasicsTitle: '基础操作', guideBasics: [
         '选择上方的难度后，点击“开始/重开”或按 N 开局。',
         '翻开两张相同的卡片即可配对成功，配对后会自动锁定。',
@@ -1249,15 +1264,30 @@ function i18n() {
       ],
       guideNoShow: '下次不再显示', guideOpenHint: '随时可点击上方“指南”查看', guideClose: '开始训练',
     },
-    en: {
-      timeLabel: 'Time', movesLabel: 'Moves', bestLabel: 'Best',
-      newGame: 'New/Restart', pause: 'Pause', resume: 'Resume', hint: 'Hint', settings: 'Settings', achievements: 'Achievements', stats: 'Stats', daily: 'Daily',
-      winTitle: 'Great! All matched', share: 'Share', back: 'Back', playAgain: 'Play Again',
-      loseTitle: 'Time Up', loseDesc: 'You can adjust countdown in Settings or retry this round.', retry: 'Retry',
-      statsTitle: 'Statistics', achievementsTitle: 'Achievements', dailyTitle: 'Daily Challenge', close: 'Close', dailyStart: 'Start', today: 'Today', difficulty: 'Difficulty', status: 'Status', completed: 'Completed', notCompleted: 'Not Completed',
-      recallTitle: 'Recall Test', recallDesc: 'Please select all items that appeared this round.', recallSkip: 'Skip', recallSubmit: 'Submit',
-      nback: 'N-back', nbackTitle: 'N-back Training', nbackNLabel: 'N', nbackSpeedLabel: 'Pace(ms)', nbackLenLabel: 'Length', nbackHint: 'Press J when it matches N-back', nbackStart: 'Start', nbackClose: 'Close', nbackStop: 'Stop',
-      guide: 'Guide', guideTitle: 'Quick Start Guide', guideIntro: 'New here? Follow these steps to begin your training.',
+      en: {
+        pageTitle: 'Memory Training · Card Match', pageSubtitle: 'Pick a difficulty and start matching cards. Your best runs are recorded.',
+        difficultyLabel: 'Difficulty', difficultyEasy: 'Easy 4×4', difficultyMedium: 'Medium 4×5', difficultyHard: 'Hard 6×6',
+        leaderboardTitle: 'Leaderboard (current difficulty)',
+        timeLabel: 'Time', movesLabel: 'Moves', bestLabel: 'Best',
+        newGame: 'New/Restart', pause: 'Pause', resume: 'Resume', hint: 'Hint', settings: 'Settings', achievements: 'Achievements', stats: 'Stats', daily: 'Daily',
+        winTitle: 'Great! All matched', share: 'Share', back: 'Back', playAgain: 'Play Again',
+        loseTitle: 'Time Up', loseDesc: 'You can adjust countdown in Settings or retry this round.', retry: 'Retry',
+        statsTitle: 'Statistics', achievementsTitle: 'Achievements', dailyTitle: 'Daily Challenge', close: 'Close', dailyStart: 'Start', today: 'Today', difficulty: 'Difficulty', status: 'Status', completed: 'Completed', notCompleted: 'Not Completed',
+        settingsTitle: 'Settings',
+        settingSound: 'Sound', settingVibrate: 'Vibration', settingPreview: 'Preview seconds',
+        settingAccent: 'Accent color', accentIndigo: 'Indigo', accentEmerald: 'Emerald', accentRose: 'Rose',
+        settingTheme: 'Theme mode', themeAuto: 'Auto', themeLight: 'Light', themeDark: 'Dark',
+        settingMotion: 'Motion', motionAuto: 'Auto', motionOn: 'On', motionOff: 'Off',
+        settingVolume: 'Volume', settingSoundPack: 'Sound pack', soundPackClear: 'Clear', soundPackElectro: 'Electro', soundPackSoft: 'Soft',
+        settingAdaptive: 'Adaptive assist', settingSpaced: 'Spaced reinforcement',
+        settingLanguage: 'Language', languageAuto: 'Auto', languageZh: 'Chinese', languageEn: 'English',
+        settingGameMode: 'Mode', gameModeClassic: 'Classic', gameModeCountdown: 'Countdown',
+        countdownEasy: 'Easy (s)', countdownMedium: 'Medium (s)', countdownHard: 'Hard (s)',
+        settingCardFace: 'Card face', cardFaceEmoji: 'Emoji', cardFaceNumbers: 'Numbers', cardFaceLetters: 'Letters', cardFaceShapes: 'Shapes', cardFaceColors: 'Colors',
+        backupLabel: 'Backup', export: 'Export', import: 'Import', resetData: 'Reset data', settingsCancel: 'Cancel', settingsSave: 'Save',
+        recallTitle: 'Recall Test', recallDesc: 'Please select all items that appeared this round.', recallSkip: 'Skip', recallSubmit: 'Submit',
+        nback: 'N-back', nbackTitle: 'N-back Training', nbackNLabel: 'N', nbackSpeedLabel: 'Pace(ms)', nbackLenLabel: 'Length', nbackHint: 'Press J when it matches N-back', nbackStart: 'Start', nbackClose: 'Close', nbackStop: 'Stop',
+        guide: 'Guide', guideTitle: 'Quick Start Guide', guideIntro: 'New here? Follow these steps to begin your training.',
       guideBasicsTitle: 'Basics', guideBasics: [
         'Pick a difficulty on the toolbar, then click “New/Restart” or press N.',
         'Flip two matching cards to lock them in. Clear all pairs to win.',
@@ -1281,20 +1311,28 @@ function i18n() {
   return dict[lang];
 }
 
-function applyLanguage() {
-  const t = i18n();
-  const timeLabelEl = document.getElementById('timeLabel'); if (timeLabelEl) timeLabelEl.textContent = t.timeLabel;
-  const movesLabelEl = document.getElementById('movesLabel'); if (movesLabelEl) movesLabelEl.textContent = t.movesLabel;
-  const bestLabelEl = document.getElementById('bestLabel'); if (bestLabelEl) bestLabelEl.textContent = t.bestLabel;
-  const winTitleEl = document.getElementById('winTitle'); if (winTitleEl) winTitleEl.textContent = t.winTitle;
-  const loseTitleEl = document.getElementById('loseTitle'); if (loseTitleEl) loseTitleEl.textContent = t.loseTitle;
-  const loseDescEl = document.getElementById('loseDesc'); if (loseDescEl) loseDescEl.textContent = t.loseDesc;
-  const statsTitleEl = document.getElementById('statsTitle'); if (statsTitleEl) statsTitleEl.textContent = t.statsTitle;
-  const achievementsTitleEl = document.getElementById('achievementsTitle'); if (achievementsTitleEl) achievementsTitleEl.textContent = t.achievementsTitle;
-  const dailyTitleEl = document.getElementById('dailyTitle'); if (dailyTitleEl) dailyTitleEl.textContent = t.dailyTitle;
-  const recallTitleEl = document.getElementById('recallTitle'); if (recallTitleEl) recallTitleEl.textContent = t.recallTitle;
-  const recallDescEl = document.getElementById('recallDesc'); if (recallDescEl) recallDescEl.textContent = t.recallDesc;
-  const recallSkip = document.getElementById('recallSkip'); if (recallSkip) recallSkip.textContent = t.recallSkip;
+  function applyLanguage() {
+    const t = i18n();
+    const pageTitleEl = document.getElementById('pageTitle'); if (pageTitleEl) pageTitleEl.textContent = t.pageTitle;
+    const pageSubtitleEl = document.getElementById('pageSubtitle'); if (pageSubtitleEl) pageSubtitleEl.textContent = t.pageSubtitle;
+    const difficultyLabelEl = document.getElementById('difficultyLabel'); if (difficultyLabelEl) difficultyLabelEl.textContent = t.difficultyLabel;
+    const difficultyEasyEl = document.getElementById('difficultyEasy'); if (difficultyEasyEl) difficultyEasyEl.textContent = t.difficultyEasy;
+    const difficultyMediumEl = document.getElementById('difficultyMedium'); if (difficultyMediumEl) difficultyMediumEl.textContent = t.difficultyMedium;
+    const difficultyHardEl = document.getElementById('difficultyHard'); if (difficultyHardEl) difficultyHardEl.textContent = t.difficultyHard;
+    const timeLabelEl = document.getElementById('timeLabel'); if (timeLabelEl) timeLabelEl.textContent = t.timeLabel;
+    const movesLabelEl = document.getElementById('movesLabel'); if (movesLabelEl) movesLabelEl.textContent = t.movesLabel;
+    const bestLabelEl = document.getElementById('bestLabel'); if (bestLabelEl) bestLabelEl.textContent = t.bestLabel;
+    const leaderboardTitleEl = document.getElementById('leaderboardTitle'); if (leaderboardTitleEl) leaderboardTitleEl.textContent = t.leaderboardTitle;
+    const winTitleEl = document.getElementById('winTitle'); if (winTitleEl) winTitleEl.textContent = t.winTitle;
+    const loseTitleEl = document.getElementById('loseTitle'); if (loseTitleEl) loseTitleEl.textContent = t.loseTitle;
+    const loseDescEl = document.getElementById('loseDesc'); if (loseDescEl) loseDescEl.textContent = t.loseDesc;
+    const statsTitleEl = document.getElementById('statsTitle'); if (statsTitleEl) statsTitleEl.textContent = t.statsTitle;
+    const achievementsTitleEl = document.getElementById('achievementsTitle'); if (achievementsTitleEl) achievementsTitleEl.textContent = t.achievementsTitle;
+    const dailyTitleEl = document.getElementById('dailyTitle'); if (dailyTitleEl) dailyTitleEl.textContent = t.dailyTitle;
+    const settingsTitleEl = document.getElementById('settingsTitle'); if (settingsTitleEl) settingsTitleEl.textContent = t.settingsTitle;
+    const recallTitleEl = document.getElementById('recallTitle'); if (recallTitleEl) recallTitleEl.textContent = t.recallTitle;
+    const recallDescEl = document.getElementById('recallDesc'); if (recallDescEl) recallDescEl.textContent = t.recallDesc;
+    const recallSkip = document.getElementById('recallSkip'); if (recallSkip) recallSkip.textContent = t.recallSkip;
   const recallSubmit = document.getElementById('recallSubmit'); if (recallSubmit) recallSubmit.textContent = t.recallSubmit;
   const nbackTitle = document.getElementById('nbackTitle'); if (nbackTitle) nbackTitle.textContent = t.nbackTitle;
   const nbackNLabel = document.getElementById('nbackNLabel'); if (nbackNLabel) nbackNLabel.textContent = t.nbackNLabel;
@@ -1315,13 +1353,57 @@ function applyLanguage() {
   if (resumeBtn) resumeBtn.textContent = t.resume;
   if (failRetryBtn) failRetryBtn.textContent = t.retry;
   if (failCloseBtn) failCloseBtn.textContent = t.back;
-  if (achievementsClose) achievementsClose.textContent = t.close;
-  if (statsClose) statsClose.textContent = t.close;
-  if (dailyCloseBtn) dailyCloseBtn.textContent = t.close;
-  if (dailyStartBtn) dailyStartBtn.textContent = t.dailyStart;
-  const guideBtnEl = document.getElementById('guideBtn'); if (guideBtnEl) guideBtnEl.textContent = t.guide;
-  const guideTitleEl = document.getElementById('guideTitle'); if (guideTitleEl) guideTitleEl.textContent = t.guideTitle;
-  const guideIntroEl = document.getElementById('guideIntro'); if (guideIntroEl) guideIntroEl.textContent = t.guideIntro;
+    if (achievementsClose) achievementsClose.textContent = t.close;
+    if (statsClose) statsClose.textContent = t.close;
+    if (dailyCloseBtn) dailyCloseBtn.textContent = t.close;
+    if (dailyStartBtn) dailyStartBtn.textContent = t.dailyStart;
+    const settingsSoundLabelEl = document.getElementById('settingSoundLabel'); if (settingsSoundLabelEl) settingsSoundLabelEl.textContent = t.settingSound;
+    const settingsVibrateLabelEl = document.getElementById('settingVibrateLabel'); if (settingsVibrateLabelEl) settingsVibrateLabelEl.textContent = t.settingVibrate;
+    const settingsPreviewLabelEl = document.getElementById('settingPreviewLabel'); if (settingsPreviewLabelEl) settingsPreviewLabelEl.textContent = t.settingPreview;
+    const settingsAccentLabelEl = document.getElementById('settingAccentLabel'); if (settingsAccentLabelEl) settingsAccentLabelEl.textContent = t.settingAccent;
+    const accentIndigoEl = document.getElementById('accentIndigo'); if (accentIndigoEl) accentIndigoEl.textContent = t.accentIndigo;
+    const accentEmeraldEl = document.getElementById('accentEmerald'); if (accentEmeraldEl) accentEmeraldEl.textContent = t.accentEmerald;
+    const accentRoseEl = document.getElementById('accentRose'); if (accentRoseEl) accentRoseEl.textContent = t.accentRose;
+    const settingsThemeLabelEl = document.getElementById('settingThemeLabel'); if (settingsThemeLabelEl) settingsThemeLabelEl.textContent = t.settingTheme;
+    const themeAutoEl = document.getElementById('themeAuto'); if (themeAutoEl) themeAutoEl.textContent = t.themeAuto;
+    const themeLightEl = document.getElementById('themeLight'); if (themeLightEl) themeLightEl.textContent = t.themeLight;
+    const themeDarkEl = document.getElementById('themeDark'); if (themeDarkEl) themeDarkEl.textContent = t.themeDark;
+    const settingsMotionLabelEl = document.getElementById('settingMotionLabel'); if (settingsMotionLabelEl) settingsMotionLabelEl.textContent = t.settingMotion;
+    const motionAutoEl = document.getElementById('motionAuto'); if (motionAutoEl) motionAutoEl.textContent = t.motionAuto;
+    const motionOnEl = document.getElementById('motionOn'); if (motionOnEl) motionOnEl.textContent = t.motionOn;
+    const motionOffEl = document.getElementById('motionOff'); if (motionOffEl) motionOffEl.textContent = t.motionOff;
+    const settingsVolumeLabelEl = document.getElementById('settingVolumeLabel'); if (settingsVolumeLabelEl) settingsVolumeLabelEl.textContent = t.settingVolume;
+    const settingsSoundPackLabelEl = document.getElementById('settingSoundPackLabel'); if (settingsSoundPackLabelEl) settingsSoundPackLabelEl.textContent = t.settingSoundPack;
+    const soundPackClearEl = document.getElementById('soundPackClear'); if (soundPackClearEl) soundPackClearEl.textContent = t.soundPackClear;
+    const soundPackElectroEl = document.getElementById('soundPackElectro'); if (soundPackElectroEl) soundPackElectroEl.textContent = t.soundPackElectro;
+    const soundPackSoftEl = document.getElementById('soundPackSoft'); if (soundPackSoftEl) soundPackSoftEl.textContent = t.soundPackSoft;
+    const settingsAdaptiveLabelEl = document.getElementById('settingAdaptiveLabel'); if (settingsAdaptiveLabelEl) settingsAdaptiveLabelEl.textContent = t.settingAdaptive;
+    const settingsSpacedLabelEl = document.getElementById('settingSpacedLabel'); if (settingsSpacedLabelEl) settingsSpacedLabelEl.textContent = t.settingSpaced;
+    const settingsLanguageLabelEl = document.getElementById('settingLanguageLabel'); if (settingsLanguageLabelEl) settingsLanguageLabelEl.textContent = t.settingLanguage;
+    const languageAutoEl = document.getElementById('languageAuto'); if (languageAutoEl) languageAutoEl.textContent = t.languageAuto;
+    const languageZhEl = document.getElementById('languageZh'); if (languageZhEl) languageZhEl.textContent = t.languageZh;
+    const languageEnEl = document.getElementById('languageEn'); if (languageEnEl) languageEnEl.textContent = t.languageEn;
+    const settingsGameModeLabelEl = document.getElementById('settingGameModeLabel'); if (settingsGameModeLabelEl) settingsGameModeLabelEl.textContent = t.settingGameMode;
+    const gameModeClassicEl = document.getElementById('gameModeClassic'); if (gameModeClassicEl) gameModeClassicEl.textContent = t.gameModeClassic;
+    const gameModeCountdownEl = document.getElementById('gameModeCountdown'); if (gameModeCountdownEl) gameModeCountdownEl.textContent = t.gameModeCountdown;
+    const countdownEasyLabelEl = document.getElementById('countdownEasyLabel'); if (countdownEasyLabelEl) countdownEasyLabelEl.textContent = t.countdownEasy;
+    const countdownMediumLabelEl = document.getElementById('countdownMediumLabel'); if (countdownMediumLabelEl) countdownMediumLabelEl.textContent = t.countdownMedium;
+    const countdownHardLabelEl = document.getElementById('countdownHardLabel'); if (countdownHardLabelEl) countdownHardLabelEl.textContent = t.countdownHard;
+    const settingsCardFaceLabelEl = document.getElementById('settingCardFaceLabel'); if (settingsCardFaceLabelEl) settingsCardFaceLabelEl.textContent = t.settingCardFace;
+    const cardFaceEmojiEl = document.getElementById('cardFaceEmoji'); if (cardFaceEmojiEl) cardFaceEmojiEl.textContent = t.cardFaceEmoji;
+    const cardFaceNumbersEl = document.getElementById('cardFaceNumbers'); if (cardFaceNumbersEl) cardFaceNumbersEl.textContent = t.cardFaceNumbers;
+    const cardFaceLettersEl = document.getElementById('cardFaceLetters'); if (cardFaceLettersEl) cardFaceLettersEl.textContent = t.cardFaceLetters;
+    const cardFaceShapesEl = document.getElementById('cardFaceShapes'); if (cardFaceShapesEl) cardFaceShapesEl.textContent = t.cardFaceShapes;
+    const cardFaceColorsEl = document.getElementById('cardFaceColors'); if (cardFaceColorsEl) cardFaceColorsEl.textContent = t.cardFaceColors;
+    const backupLabelEl = document.getElementById('backupLabel'); if (backupLabelEl) backupLabelEl.textContent = t.backupLabel;
+    const exportBtnEl = document.getElementById('exportBtn'); if (exportBtnEl) exportBtnEl.textContent = t.export;
+    const importBtnEl = document.getElementById('importBtn'); if (importBtnEl) importBtnEl.textContent = t.import;
+    const settingsCancelEl = document.getElementById('settingsCancel'); if (settingsCancelEl) settingsCancelEl.textContent = t.settingsCancel || t.close;
+    const settingsSaveEl = document.getElementById('settingsSave'); if (settingsSaveEl) settingsSaveEl.textContent = t.settingsSave || t.save;
+    const resetDataEl = document.getElementById('resetData'); if (resetDataEl) resetDataEl.textContent = t.resetData;
+    const guideBtnEl = document.getElementById('guideBtn'); if (guideBtnEl) guideBtnEl.textContent = t.guide;
+    const guideTitleEl = document.getElementById('guideTitle'); if (guideTitleEl) guideTitleEl.textContent = t.guideTitle;
+    const guideIntroEl = document.getElementById('guideIntro'); if (guideIntroEl) guideIntroEl.textContent = t.guideIntro;
   const guideBasicsTitleEl = document.getElementById('guideBasicsTitle'); if (guideBasicsTitleEl) guideBasicsTitleEl.textContent = t.guideBasicsTitle;
   if (guideBasicsList) guideBasicsList.innerHTML = (t.guideBasics || []).map(item => `<li>${item}</li>`).join('');
   const guideAdvancedTitleEl = document.getElementById('guideAdvancedTitle'); if (guideAdvancedTitleEl) guideAdvancedTitleEl.textContent = t.guideAdvancedTitle;
